@@ -3,9 +3,9 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
 
-const uri = process.env.MONGO_URI;
+const uri = "mongodb+srv://mehulxy21:bETCO7iP1hYl0924@amazondb.6ploi6k.mongodb.net";
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
