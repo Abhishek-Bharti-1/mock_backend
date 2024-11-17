@@ -19,7 +19,7 @@ app.get('/api/collection', async (req, res) => {
     await client.connect();
 
     const database = client.db('audiobook'); 
-    const collection = database.collection('audiobooks');
+    const collection = database.collection('audiobook');
 
     const data = await collection.find({}).toArray();
 
