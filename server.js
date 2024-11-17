@@ -32,6 +32,36 @@ app.get('/api/collection', async (req, res) => {
   }
 });
 
+app.get('/api/audiobook/:id/chapters', async (req, res) => {
+  try {
+    const audiobookId = req.params.id; // Get the audiobook ID from the route parameter
+    await client.connect();
+
+    const database = client.db('audiobook'); 
+    const collection = database.collection('audiobook');
+
+    // Find the audiobook by ID and extract its chapters
+    const audiobook = await collection.findOne(
+      { "audiobooks.id": audiobookId },
+      { projection: { "audiobooks.$": 1 } } // Fetch only the matching audiobook
+    );
+
+    if (!audiobook || !audiobook.audiobooks.length) {
+      return res.status(404).send('Audiobook not found');
+    }
+
+    const chapters = audiobook.audiobooks[0].chapters;
+
+    return res.status(200).json(chapters);
+  } catch (error) {
+    console.error('Error fetching chapters:', error);
+    return res.status(500).send('An error occurred while fetching chapters');
+  } finally {
+    await client.close();
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
