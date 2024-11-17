@@ -21,7 +21,7 @@ app.get('/api/collection', async (req, res) => {
     const database = client.db('audiobook'); 
     const collection = database.collection('audiobook');
 
-    const data = await collection.find({}, { audiobooks: 1, _id: 0 }).toArray();
+    const data = await collection.find({}, { projection: { audiobooks: 1, _id: 0 } }).toArray();
 
     const audiobooks = data.flatMap(item => item.audiobooks);
 
