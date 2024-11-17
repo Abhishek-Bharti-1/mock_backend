@@ -21,7 +21,7 @@ app.get('/api/collection', async (req, res) => {
     const database = client.db('audiobook'); 
     const collection = database.collection('audiobook');
 
-    const data = await collection.find({}).toArray();
+     const data = await collection.find({}, { projection: { audiobooks: 1, _id: 0 } }).toArray();
 
     const audiobooks = data.flatMap(item => item.audiobooks);
 
@@ -62,6 +62,46 @@ app.get('/api/audiobook/:id/chapters', async (req, res) => {
     await client.close();
   }
 });
+
+app.get('/api/audiobook/:audiobookId/chapter/:chapterId', async (req, res) => {
+  try {
+    // Extract audiobookId and chapterId from request parameters
+    const { audiobookId, chapterId } = req.params;
+
+    // Connect to MongoDB client
+    await client.connect();
+
+    // Access the database and collection
+    const database = client.db('audiobook');
+    const collection = database.collection('audiobooks');
+
+    // Find the audiobook by ID
+    const audiobook = await collection.findOne({ 'audiobooks.id': audiobookId });
+
+    if (!audiobook) {
+      return res.status(404).send('Audiobook not found');
+    }
+
+    // Find the chapter with the given chapterId within the audiobook
+    const chapter = audiobook.audiobooks
+      .flatMap(book => book.chapters)
+      .find(ch => ch.id === chapterId);
+
+    if (!chapter) {
+      return res.status(404).send('Chapter not found');
+    }
+
+    // Return the audio tracks of the found chapter
+    return res.status(200).json(chapter.audioTracks);
+  } catch (error) {
+    console.error('Error fetching audio tracks:', error);
+    return res.status(500).send('An error occurred while fetching audio tracks');
+  } finally {
+    // Close the MongoDB client
+    await client.close();
+  }
+});
+
 
 
 app.listen(port, () => {
