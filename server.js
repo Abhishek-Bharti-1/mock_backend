@@ -23,6 +23,8 @@ app.get('/api/collection', async (req, res) => {
 
     const data = await collection.find({}).toArray();
 
+    const audiobooks = data.flatMap(item => item.audiobooks);
+
     return res.status(200).json(data);
   } catch (error) {
     console.error('Error fetching data:', error);
